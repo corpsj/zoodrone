@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}작업 이력{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">
+            <i class="bi bi-clock-history"></i> 작업 이력
+            <button class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#historyModal">
+                <i class="bi bi-plus-circle"></i> 작업 기록 추가
+            </button>
+        </h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul"></i> 작업 이력 목록
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>작업 일시</th>
+                                <th>필지명</th>
+                                <th>작업자</th>
+                                <th>드론 모델</th>
+                                <th>비행 시간</th>
+                                <th>살포량</th>
+                                <th>작업</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyList">
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">데이터를 불러오는 중...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 작업 추가/수정 모달 -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">작업 이력 정보</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="historyForm">
+                    <input type="hidden" id="historyId">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="historyFieldId" class="form-label">필지 선택 *</label>
+                            <select class="form-select" id="historyFieldId" required>
+                                <option value="">필지를 선택하세요</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="historyPlanId" class="form-label">방제 계획 선택 *</label>
+                            <select class="form-select" id="historyPlanId" required>
+                                <option value="">계획을 선택하세요</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="historyDate" class="form-label">작업 일시 *</label>
+                            <input type="datetime-local" class="form-control" id="historyDate" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="historyOperator" class="form-label">작업자 *</label>
+                            <input type="text" class="form-control" id="historyOperator" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="historyDrone" class="form-label">드론 모델</label>
+                            <input type="text" class="form-control" id="historyDrone">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="historyFlightTime" class="form-label">비행 시간(분)</label>
+                            <input type="number" class="form-control" id="historyFlightTime">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="historyBattery" class="form-label">배터리 사용량(%)</label>
+                            <input type="number" class="form-control" id="historyBattery" min="0" max="100">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="historyPesticide" class="form-label">살포량(L)</label>
+                            <input type="number" class="form-control" id="historyPesticide" step="0.1">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="historyNotes" class="form-label">작업 메모</label>
+                        <textarea class="form-control" id="historyNotes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="saveHistory()">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}대시보드{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">
+            <i class="bi bi-speedometer2"></i> 대시보드
+        </h2>
+    </div>
+</div>
+
+<!-- 통계 카드 -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-geo-alt"></i> 총 필지 수
+                </h5>
+                <h2 class="mb-0" id="totalFields">-</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-calendar-check"></i> 이번 주 방제 계획
+                </h5>
+                <h2 class="mb-0" id="plansThisWeek">-</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-check-circle"></i> 완료된 작업
+                </h5>
+                <h2 class="mb-0" id="completedThisWeek">-</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-bounding-box"></i> 이번 달 방제 면적
+                </h5>
+                <h2 class="mb-0" id="monthlyArea">-</h2>
+                <small>㎡</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 오늘의 일정 & 최근 작업 -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-calendar-day"></i> 오늘의 방제 일정
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="todayPlans">
+                    <p class="text-muted text-center">데이터를 불러오는 중...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history"></i> 최근 작업 이력
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="recentHistories">
+                    <p class="text-muted text-center">데이터를 불러오는 중...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

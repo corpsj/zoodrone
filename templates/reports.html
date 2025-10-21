@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}보고서{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">
+            <i class="bi bi-file-earmark-bar-graph"></i> 보고서
+        </h2>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-funnel"></i> 조회 조건
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="reportForm" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="startDate" class="form-label">시작일</label>
+                        <input type="date" class="form-control" id="startDate">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="endDate" class="form-label">종료일</label>
+                        <input type="date" class="form-control" id="endDate">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="button" class="btn btn-primary w-100" onclick="loadReport()">
+                            <i class="bi bi-search"></i> 조회
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-bar-chart"></i> 작업 통계
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="workChart" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul"></i> 상세 내역
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>날짜</th>
+                                <th>필지명</th>
+                                <th>작업자</th>
+                                <th>비행시간</th>
+                                <th>살포량</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportDetails">
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">데이터가 없습니다</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-calculator"></i> 요약 통계
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">총 작업 건수</h6>
+                    <h3 id="totalWorks">-</h3>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted">총 방제 면적</h6>
+                    <h3 id="totalArea">-</h3>
+                    <small class="text-muted">㎡</small>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted">총 살포량</h6>
+                    <h3 id="totalPesticide">-</h3>
+                    <small class="text-muted">L</small>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted">총 비행 시간</h6>
+                    <h3 id="totalTime">-</h3>
+                    <small class="text-muted">분</small>
+                </div>
+                <hr>
+                <button class="btn btn-success w-100" onclick="downloadReport()">
+                    <i class="bi bi-download"></i> CSV 다운로드
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 보고서 기능은 Phase 6에서 구현 예정
+    console.log('Reports page loaded');
+</script>
+{% endblock %}
