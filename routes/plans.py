@@ -38,7 +38,7 @@ def get_plans():
             'count': len(plans)
         })
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': '방제 계획 목록을 불러오는데 실패했습니다.'}), 500
 
 
 @bp.route('/<plan_id>', methods=['GET'])
@@ -51,7 +51,7 @@ def get_plan(plan_id):
             'data': plan.to_dict()
         })
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 404
+        return jsonify({'success': False, 'error': '방제 계획을 찾을 수 없습니다.'}), 404
 
 
 @bp.route('', methods=['POST'])
@@ -60,13 +60,29 @@ def create_plan():
     try:
         data = request.get_json()
 
+        # 필수 필드 검증
+        if not data.get('field_id'):
+            return jsonify({'success': False, 'error': '필지를 선택해주세요.'}), 400
+        if not data.get('scheduled_date'):
+            return jsonify({'success': False, 'error': '예정일을 입력해주세요.'}), 400
+        if not data.get('pesticide_name'):
+            return jsonify({'success': False, 'error': '농약명을 입력해주세요.'}), 400
+        if not data.get('pesticide_amount') or float(data.get('pesticide_amount', 0)) <= 0:
+            return jsonify({'success': False, 'error': '유효한 살포량을 입력해주세요.'}), 400
+
+        # 상태 검증
+        valid_statuses = ['scheduled', 'completed', 'cancelled']
+        status = data.get('status', 'scheduled')
+        if status not in valid_statuses:
+            return jsonify({'success': False, 'error': '유효하지 않은 상태입니다.'}), 400
+
         plan = SprayPlan(
             field_id=data.get('field_id'),
             scheduled_date=datetime.fromisoformat(data.get('scheduled_date')).date(),
             pesticide_name=data.get('pesticide_name'),
-            pesticide_amount=data.get('pesticide_amount'),
+            pesticide_amount=float(data.get('pesticide_amount')),
             target_pest=data.get('target_pest'),
-            status=data.get('status', 'scheduled'),
+            status=status,
             weather_condition=data.get('weather_condition'),
             notes=data.get('notes')
         )
@@ -79,9 +95,12 @@ def create_plan():
             'data': plan.to_dict(),
             'message': '방제 계획이 성공적으로 생성되었습니다.'
         }), 201
+    except ValueError as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': '입력값 형식이 올바르지 않습니다.'}), 400
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': '방제 계획 생성 중 오류가 발생했습니다.'}), 500
 
 
 @bp.route('/<plan_id>', methods=['PUT'])
@@ -91,12 +110,25 @@ def update_plan(plan_id):
         plan = SprayPlan.query.get_or_404(plan_id)
         data = request.get_json()
 
+        # 유효성 검사
+        if 'pesticide_name' in data and not data['pesticide_name']:
+            return jsonify({'success': False, 'error': '농약명은 필수입니다.'}), 400
+        if 'pesticide_amount' in data and float(data.get('pesticide_amount', 0)) <= 0:
+            return jsonify({'success': False, 'error': '유효한 살포량을 입력해주세요.'}), 400
+        if 'status' in data:
+            valid_statuses = ['scheduled', 'completed', 'cancelled']
+            if data['status'] not in valid_statuses:
+                return jsonify({'success': False, 'error': '유효하지 않은 상태입니다.'}), 400
+
+        # 수정 가능한 필드 업데이트
+        if 'field_id' in data:
+            plan.field_id = data['field_id']
         if 'scheduled_date' in data:
             plan.scheduled_date = datetime.fromisoformat(data['scheduled_date']).date()
         if 'pesticide_name' in data:
             plan.pesticide_name = data['pesticide_name']
         if 'pesticide_amount' in data:
-            plan.pesticide_amount = data['pesticide_amount']
+            plan.pesticide_amount = float(data['pesticide_amount'])
         if 'target_pest' in data:
             plan.target_pest = data['target_pest']
         if 'status' in data:
@@ -113,9 +145,12 @@ def update_plan(plan_id):
             'data': plan.to_dict(),
             'message': '방제 계획이 성공적으로 수정되었습니다.'
         })
+    except ValueError as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': '입력값 형식이 올바르지 않습니다.'}), 400
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': '방제 계획 수정 중 오류가 발생했습니다.'}), 500
 
 
 @bp.route('/<plan_id>', methods=['DELETE'])
@@ -132,4 +167,4 @@ def delete_plan(plan_id):
         })
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': '방제 계획 삭제 중 오류가 발생했습니다.'}), 500

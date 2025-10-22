@@ -23,6 +23,37 @@
                 </h5>
             </div>
             <div class="card-body">
+                <!-- 검색 및 필터 -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" id="searchPlan" class="form-control"
+                                   placeholder="필지명, 농약명으로 검색..."
+                                   onkeyup="searchPlans()">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary" onclick="filterByStatus('')">
+                                <i class="bi bi-funnel"></i> 전체
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" onclick="filterByStatus('scheduled')">
+                                예정
+                            </button>
+                            <button type="button" class="btn btn-outline-success" onclick="filterByStatus('completed')">
+                                완료
+                            </button>
+                            <button type="button" class="btn btn-outline-danger" onclick="filterByStatus('cancelled')">
+                                취소
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 목록 테이블 -->
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
@@ -53,37 +84,75 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">방제 계획 정보</h5>
+                <h5 class="modal-title">방제 계획 등록</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="planForm">
                     <input type="hidden" id="planId">
+
+                    <!-- 필지 선택 -->
                     <div class="mb-3">
-                        <label for="planFieldId" class="form-label">필지 선택 *</label>
+                        <label for="planFieldId" class="form-label">
+                            <i class="bi bi-geo-alt"></i> 필지 선택 *
+                        </label>
                         <select class="form-select" id="planFieldId" required>
                             <option value="">필지를 선택하세요</option>
                         </select>
                     </div>
+
+                    <!-- 필지 정보 표시 -->
+                    <div id="fieldInfo" class="alert alert-info d-none" role="alert">
+                        <i class="bi bi-info-circle"></i>
+                        <span id="fieldInfoText"></span>
+                    </div>
+
+                    <!-- 예정일 -->
                     <div class="mb-3">
-                        <label for="planDate" class="form-label">예정일 *</label>
+                        <label for="planDate" class="form-label">
+                            <i class="bi bi-calendar"></i> 예정일 *
+                        </label>
                         <input type="date" class="form-control" id="planDate" required>
                     </div>
+
+                    <!-- 농약명 -->
                     <div class="mb-3">
-                        <label for="planPesticide" class="form-label">농약명 *</label>
-                        <input type="text" class="form-control" id="planPesticide" required>
+                        <label for="planPesticide" class="form-label">
+                            <i class="bi bi-droplet"></i> 농약명 *
+                        </label>
+                        <input type="text" class="form-control" id="planPesticide"
+                               placeholder="예: 다이센엠-45" required>
                     </div>
+
+                    <!-- 살포량 -->
                     <div class="mb-3">
-                        <label for="planAmount" class="form-label">살포량(L) *</label>
-                        <input type="number" class="form-control" id="planAmount" step="0.1" required>
+                        <label for="planAmount" class="form-label">
+                            <i class="bi bi-speedometer"></i> 살포량(L) *
+                        </label>
+                        <input type="number" class="form-control" id="planAmount"
+                               step="0.1" min="0" required>
+                        <div class="form-text">
+                            <i class="bi bi-lightbulb"></i>
+                            필지 선택 시 면적 기준으로 자동 계산됩니다 (1,000㎡당 10L)
+                        </div>
                     </div>
+
+                    <!-- 대상 병해충 -->
                     <div class="mb-3">
-                        <label for="planTarget" class="form-label">대상 병해충</label>
-                        <input type="text" class="form-control" id="planTarget">
+                        <label for="planTarget" class="form-label">
+                            <i class="bi bi-bug"></i> 대상 병해충
+                        </label>
+                        <input type="text" class="form-control" id="planTarget"
+                               placeholder="예: 노균병, 흰가루병">
                     </div>
+
+                    <!-- 비고 -->
                     <div class="mb-3">
-                        <label for="planNotes" class="form-label">비고</label>
-                        <textarea class="form-control" id="planNotes" rows="3"></textarea>
+                        <label for="planNotes" class="form-label">
+                            <i class="bi bi-sticky"></i> 비고
+                        </label>
+                        <textarea class="form-control" id="planNotes" rows="3"
+                                  placeholder="특이사항이나 주의사항을 입력하세요"></textarea>
                     </div>
                 </form>
             </div>
