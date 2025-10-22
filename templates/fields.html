@@ -7,7 +7,7 @@
     <div class="col-12">
         <h2 class="mb-4">
             <i class="bi bi-geo-alt"></i> 필지 관리
-            <button class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#fieldModal">
+            <button class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#fieldModal" onclick="resetForm()">
                 <i class="bi bi-plus-circle"></i> 필지 추가
             </button>
         </h2>
@@ -18,13 +18,29 @@
     <!-- 지도 영역 -->
     <div class="col-md-7">
         <div class="card">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
                     <i class="bi bi-map"></i> 지도
                 </h5>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-light btn-sm" onclick="map.setView([37.5665, 126.9780], 7)" title="초기 위치">
+                        <i class="bi bi-house"></i>
+                    </button>
+                </div>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body p-0 position-relative">
                 <div id="map" style="height: 600px;"></div>
+                <!-- 지도 도구 패널 -->
+                <div class="position-absolute top-0 start-0 m-3" style="z-index: 1000;">
+                    <div class="btn-group-vertical" role="group">
+                        <button id="drawModeBtn" type="button" class="btn btn-secondary btn-sm" onclick="toggleDrawingMode()" title="경계선 그리기">
+                            <i class="bi bi-pencil"></i> 경계선 그리기
+                        </button>
+                        <button type="button" class="btn btn-warning btn-sm" onclick="clearPolygon()" title="경계선 초기화">
+                            <i class="bi bi-x-circle"></i> 초기화
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -37,8 +53,18 @@
                     <i class="bi bi-list-ul"></i> 필지 목록
                 </h5>
             </div>
-            <div class="card-body" style="max-height: 600px; overflow-y: auto;">
-                <div id="fieldsList">
+            <div class="card-body p-3">
+                <!-- 검색 상자 -->
+                <div class="mb-3">
+                    <div class="input-group">
+                        <input type="text" id="searchField" class="form-control" placeholder="필지명, 소유주, 작물 검색..." onkeyup="searchFields()">
+                        <button class="btn btn-outline-secondary" type="button" onclick="searchFields()">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- 필지 목록 -->
+                <div id="fieldsList" style="max-height: 520px; overflow-y: auto;">
                     <p class="text-muted text-center">데이터를 불러오는 중...</p>
                 </div>
             </div>
@@ -48,44 +74,98 @@
 
 <!-- 필지 추가/수정 모달 -->
 <div class="modal fade" id="fieldModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title">필지 정보</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <!-- 안내 메시지 -->
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>안내:</strong> 지도를 클릭하여 필지 중심점을 설정하세요.
+                    경계선 그리기 버튼을 클릭하여 필지 경계선을 그릴 수 있습니다.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
                 <form id="fieldForm">
                     <input type="hidden" id="fieldId">
-                    <div class="mb-3">
-                        <label for="fieldName" class="form-label">필지명 *</label>
-                        <input type="text" class="form-control" id="fieldName" required>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fieldName" class="form-label">
+                                    필지명 <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="fieldName" placeholder="예: 1번 논" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fieldOwner" class="form-label">
+                                    소유주 <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="fieldOwner" placeholder="예: 김농부" required>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="fieldOwner" class="form-label">소유주 *</label>
-                        <input type="text" class="form-control" id="fieldOwner" required>
-                    </div>
+
                     <div class="mb-3">
                         <label for="fieldAddress" class="form-label">주소</label>
-                        <input type="text" class="form-control" id="fieldAddress">
+                        <input type="text" class="form-control" id="fieldAddress" placeholder="예: 경기도 이천시 백사면">
                     </div>
-                    <div class="mb-3">
-                        <label for="fieldCropType" class="form-label">작물 종류</label>
-                        <input type="text" class="form-control" id="fieldCropType">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fieldCropType" class="form-label">작물 종류</label>
+                                <input type="text" class="form-control" id="fieldCropType" placeholder="예: 벼, 배추, 고추" list="cropTypes">
+                                <datalist id="cropTypes">
+                                    <option value="벼">
+                                    <option value="배추">
+                                    <option value="고추">
+                                    <option value="감자">
+                                    <option value="양파">
+                                    <option value="마늘">
+                                    <option value="콩">
+                                    <option value="옥수수">
+                                </datalist>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fieldArea" class="form-label">
+                                    면적(㎡) <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" class="form-control" id="fieldArea" step="0.01" placeholder="예: 5000" required>
+                                <small class="text-muted">1,000㎡ = 약 302평</small>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="fieldArea" class="form-label">면적(㎡) *</label>
-                        <input type="number" class="form-control" id="fieldArea" step="0.01" required>
-                    </div>
+
                     <div class="mb-3">
                         <label for="fieldNotes" class="form-label">비고</label>
-                        <textarea class="form-control" id="fieldNotes" rows="3"></textarea>
+                        <textarea class="form-control" id="fieldNotes" rows="3" placeholder="추가 정보를 입력하세요"></textarea>
+                    </div>
+
+                    <!-- 위치 정보 표시 -->
+                    <div class="mb-3">
+                        <label class="form-label">위치 정보</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                            <input type="text" class="form-control" id="locationInfo" readonly placeholder="지도를 클릭하여 위치를 지정하세요">
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                <button type="button" class="btn btn-primary" onclick="saveField()">저장</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> 취소
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveField()">
+                    <i class="bi bi-save"></i> 저장
+                </button>
             </div>
         </div>
     </div>
