@@ -20,8 +20,8 @@ class Field(db.Model):
     center_lng = db.Column(db.Float, nullable=False, comment='중심 경도')
     boundary = db.Column(db.JSON, comment='경계선 좌표 배열')
     notes = db.Column(db.Text, comment='비고')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, comment='생성일시')
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, comment='수정일시')
+    created_at = db.Column(db.DateTime, default=lambda: datetime.utcnow(), comment='생성일시')
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.utcnow(), onupdate=lambda: datetime.utcnow(), comment='수정일시')
 
     # 관계 정의
     spray_plans = db.relationship('SprayPlan', backref='field', lazy=True, cascade='all, delete-orphan')

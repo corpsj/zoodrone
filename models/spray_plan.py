@@ -24,8 +24,8 @@ class SprayPlan(db.Model):
     )
     weather_condition = db.Column(db.JSON, comment='날씨 정보')
     notes = db.Column(db.Text, comment='비고')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, comment='생성일시')
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, comment='수정일시')
+    created_at = db.Column(db.DateTime, default=lambda: datetime.utcnow(), comment='생성일시')
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.utcnow(), onupdate=lambda: datetime.utcnow(), comment='수정일시')
 
     # 관계 정의
     work_histories = db.relationship('WorkHistory', backref='spray_plan', lazy=True)

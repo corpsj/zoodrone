@@ -23,8 +23,8 @@ class WorkHistory(db.Model):
     weather_actual = db.Column(db.JSON, comment='실제 날씨')
     photos = db.Column(db.JSON, comment='사진 URL 배열')
     notes = db.Column(db.Text, comment='작업 메모')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, comment='생성일시')
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, comment='수정일시')
+    created_at = db.Column(db.DateTime, default=lambda: datetime.utcnow(), comment='생성일시')
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.utcnow(), onupdate=lambda: datetime.utcnow(), comment='수정일시')
 
     def to_dict(self):
         """딕셔너리로 변환"""

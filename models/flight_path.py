@@ -19,7 +19,7 @@ class FlightPath(db.Model):
     total_distance = db.Column(db.Float, comment='총 비행 거리(미터)')
     estimated_time = db.Column(db.Integer, comment='예상 시간(분)')
     notes = db.Column(db.Text, comment='비고')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, comment='생성일시')
+    created_at = db.Column(db.DateTime, default=lambda: datetime.utcnow(), comment='생성일시')
 
     # 관계 정의
     work_histories = db.relationship('WorkHistory', backref='flight_path', lazy=True)
